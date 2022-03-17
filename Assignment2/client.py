@@ -1,3 +1,4 @@
+from ipaddress import ip_address
 import socket,time
 
 PORT = 5050
@@ -5,7 +6,7 @@ PORT = 5050
 SERVER = "localhost"
 ADDR = (SERVER,PORT)
 FORMAT = "utf-8"
-DISCONNECT_MESSAGE = "!DISCONNECT"
+DISCONNECT_MESSAGE = "!disconnect"
 
 def connect():
     #AF_INET ipv4 addressing, SOCK_STREAM tcp socket
@@ -17,15 +18,22 @@ def send(client,msg):
     message = msg.encode(FORMAT)
     client.send(message)
 
-def start():   
-    ans = input('Would you like to connect (yes/no)? ')
-    if ans.lower() != 'yes':
-        return
-
+def start():  
+    global PORT,SERVER,ADDR
+    print('Running client program...')
+    x,y = input('Enter chat server\'s IP address and port: ').split()
+    SERVER = x
+    PORT = int(y)
+    ADDR = (SERVER,PORT)
+    user = input('Enter this client\'s name: ')
+    print(f'Trying to connect to the server: {ADDR}')
     connection = connect()
+    print('Server connected')
+    send(connection,user)
+    print('Type !disconnect to close the client program')
     while True:
-        msg = input("Message (q for quit): ")
-        if msg == 'q':
+        msg = input(f"{user}: ")
+        if msg == '!disconnect':
             break
         send(connection,msg)
 

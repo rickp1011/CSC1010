@@ -2,22 +2,23 @@ import threading,socket
 
 PORT = 5050
 #socket.gethostbyname(scoket.gethostname())
-SERVER = "localhost"
+SERVER = "172.0.0.1"
 ADDR = (SERVER,PORT)
 FORMAT = "utf-8"
-DISCONNECT_MESSAGE = "!DISCONNECT"
+DISCONNECT_MESSAGE = "!disconnect"
 
 #AF_INET ipv4 addressing, SOCK_STREAM tcp socket
-server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-server.bind(ADDR)
+
 
 clients = set()
 clients_lock = threading.Lock()
 
 def handle_client(conn,addr):
-    print(f"[NEW CONNECTION] {addr} Connected" )
+    user = conn.recv(1024).decode(FORMAT)
+    print(f"[NEW CONNECTION] {addr} {user} established")
     try:
         connected = True
+        
         while connected:
             msg = conn.recv(1024).decode(FORMAT)
             if not msg:
@@ -37,8 +38,20 @@ def handle_client(conn,addr):
         conn.close()
 
 def start():
-    print("[SERVER STARTED]")
+    print("CSC1010 Chat server, please enter the listening IP address and port.")
+    global SERVER, PORT, ADDR
+    x,y = input().split()
+    SERVER = x
+    PORT = int(y)
+    ADDR = (SERVER,PORT)
+    
+    server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    server.bind(ADDR)
+
+    print(f"[SERVER STARTED :{ADDR}]")
+    print("Waiting for incoming connections...")
     server.listen()
+
     while True:
         conn, addr = server.accept()
         #Ensure one thread is being modified one at a time
@@ -49,3 +62,4 @@ def start():
         thread.start()
 
 start()
+

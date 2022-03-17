@@ -2,7 +2,7 @@ import socket,time
 
 PORT = 5050
 #socket.gethostbyname(scoket.gethostname())
-SERVER = "localhost"
+SERVER = "172.20.10.8"
 ADDR = (SERVER,PORT)
 FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!DISCONNECT"
