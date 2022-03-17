@@ -15,7 +15,7 @@ clients_lock = threading.Lock()
 
 def handle_client(conn,addr):
     user = conn.recv(1024).decode(FORMAT)
-    print(f"[NEW CONNECTION] {addr}:{user} established")
+    print(f"{addr}:{user} established")
     try:
         connected = True
         
@@ -25,6 +25,7 @@ def handle_client(conn,addr):
                 break
 
             if msg == DISCONNECT_MESSAGE:
+                print(f"{user} has disconnected...")
                 connected = False
 
             print(f"{user}: {msg}")
