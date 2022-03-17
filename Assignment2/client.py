@@ -28,7 +28,7 @@ def start():
     user = input('Enter this client\'s name: ')
     print(f'Trying to connect to the server: {ADDR}')
     connection = connect()
-    print('Server connected')
+    print('...Server connected...')
     send(connection,user)
     print('Type !disconnect to close the client program')
     while True:
