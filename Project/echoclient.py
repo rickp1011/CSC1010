@@ -82,13 +82,13 @@ def low_level_warning(dist):
     tank_height = 22  # set your tank height here
     level = tank_height - dist
     if level < 6:
-        print("level low : ", level)
+        print("red light ,level low : ", level)
         GPIO.output(ALARM, True)
         GPIO.output(NOALARM, False)
     else:
         GPIO.output(ALARM, False)
         GPIO.output(NOALARM, True)
-        print("level ok")
+        print(" green light level ok")
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -108,7 +108,7 @@ try:
         output=output.encode()
 
         print(output, distance)
-        #sendData_to_remoteServer(distance)
+        #sendData_to_remoteServer(distansce)
         low_level_warning(distance)
         print("---------------------")
         print (sys.stderr, 'sending "%s"' % message)
