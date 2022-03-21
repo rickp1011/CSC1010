@@ -1,5 +1,11 @@
 import socket
 import sys
+from threading import Thread
+"""def child(connectionSocket):
+    data = connection.recv(16)
+    print (sys.stderr, 'received "%s"' % data)
+    connection.sendall(data)
+    connection.close()"""
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,6 +20,8 @@ sock.listen(1)
 while True:
     print (sys.stderr, 'waiting for a connection')
     connection, client_address = sock.accept()
+    ## t = Thread(target=child , args = (connectionSocket, ))
+    ##t.start()
     try:
         print (sys.stderr, 'client connected:', client_address)
         while True:
