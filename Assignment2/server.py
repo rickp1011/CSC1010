@@ -20,7 +20,6 @@ server.listen()
 # arr to store connected clients and their nicknames
 clientsConnected = []
 nicknames = []
-
 # send message to all client connected to server
 def broadcast(message):
     for client in clientsConnected:
@@ -35,6 +34,19 @@ def handle_connection(conn):
             broadcast(msg)
             printmsg=msg.decode(FORMAT)
             print(printmsg)
+            if printmsg=="getImg": #if userInput is getImg, send connection image list
+                conn.send("_____Image list_____\n".encode(FORMAT))
+                conn.send("pepe1.jpg\n".encode(FORMAT))
+                conn.send("pepe2.jpg\n".encode(FORMAT))
+                conn.send("___________________".encode(FORMAT))
+            if printmsg == "toDownload":
+                pass
+
+
+
+
+
+
         except:
             #if expection occur, remove connected client from both nicknames[] and clientsConnected[]
             index = clientsConnected.index(conn)
@@ -56,7 +68,6 @@ def receiveServer():
         nickname = conn.recv(1024).decode(FORMAT) #get nickname from client
         nicknames.append(nickname)  #append to nicknames[]
         clientsConnected.append(conn) #append to clientsConnected[]
-
         print(f"Client is {nickname}")
         broadcast("{} joined the chat!".format(nickname).encode(FORMAT))
         conn.send("Connected to chat room".encode(FORMAT))
