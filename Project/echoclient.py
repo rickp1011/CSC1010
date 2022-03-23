@@ -99,20 +99,21 @@ sock.connect(server_address)
 
 try:
     while True:
-        # print('ur message')
+       # print('ur message')
         # message = input().encode()
-        distance = 23 - get_distance() #23 is height of bottle, getdistance() returns distance from sensor to water
-        output="Water Level in cm: "
+        distance = 23 - get_distance() #23 is height of bottle, getdistance() r$
+        #output="Water Level in cm: "
         message=str(distance)
         message=message.encode()
-        output=output.encode()
-
-        print(output, distance)
+        #output=output.encode()
+        print( distance)
         #sendData_to_remoteServer(distansce)
         low_level_warning(distance)
         print("---------------------")
         print (sys.stderr, 'sending "%s"' % message)
-        sock.sendall(output, message) #nt sure if string need to encode, to test
+        #sock.send(output)
+        sock.sendall(message) #nt sure if string need to encode, to test
+
 
         amount_received = 0
         amount_expected = len(message)
