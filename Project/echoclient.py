@@ -106,14 +106,13 @@ try:
         message=str(distance)
         message=message.encode()
         #output=output.encode()
-        print( distance)
+        print(distance)
         #sendData_to_remoteServer(distansce)
         low_level_warning(distance)
         print("---------------------")
         print (sys.stderr, 'sending "%s"' % message)
         #sock.send(output)
         sock.sendall(message) #nt sure if string need to encode, to test
-
 
         amount_received = 0
         amount_expected = len(message)

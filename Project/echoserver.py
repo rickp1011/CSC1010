@@ -13,7 +13,7 @@ chatIdServer=[]
 waterLevel=""
 
 def action(msg): #done at msgLoop
-    global chatIdServer
+    global chatIdServer,checkWater,waterLevel
     chat_id = msg['chat']['id'] # auto get current chat id
     command = msg['text']
 
@@ -25,8 +25,10 @@ def action(msg): #done at msgLoop
     # elif command == '/list':
     #     telegram_bot.sendMessage (chat_id, str("listing all chat id")+str(chatIdServer))
     elif command == '/check':
-        telegram_bot.sendMessage(chat_id, str(now.hour)+str(":")+str(now.minute)+"waterLvl")
         checkWater=True
+        time.sleep(2)
+        telegram_bot.sendMessage(chat_id, str(now.hour)+str(":")+str(now.minute)+waterLevel)
+        
 
 """def child(connectionSocket):
     data = connection.recv(16)
@@ -35,8 +37,9 @@ def action(msg): #done at msgLoop
     connection.close()"""
 
 def getWater(data):
-    global waterLevel
+    global waterLevel,checkWater
     waterLevel = data
+    time.sleep(2)
     checkWater=False
 
 
@@ -45,7 +48,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the address given on the command line
 server_name = sys.argv[1]
-server_address = (server_name, 10000)
+server_address = (server_name, int(sys.argv[2]))
 print (sys.stderr, 'starting up on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(1)
@@ -62,16 +65,23 @@ while True:
     try:
         print (sys.stderr, 'client connected:', client_address)
         while True:
+            #retrieve from pi
             data = connection.recv(128)
-            if checkWater:
-                getWater(data)
-
-
             print (sys.stderr, 'received "%s"' % data)
+
+            #send connected 
             if data:
+                data2=data
                 connection.sendall(data)
             else:
-                break
+                continue
+
+            if checkWater and data2:
+                print('dataful')
+                getWater(data2.decode())
+            else:
+                print('no data')
+            
     finally:
         connection.close()
 
