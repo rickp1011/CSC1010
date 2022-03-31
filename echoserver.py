@@ -26,6 +26,7 @@ checkWater=False
 now = datetime.datetime.now()
 chatIdServer=[]
 waterLevel=""
+broadCastCount=0 #broadcast flag
 
 def action(msg): #done at msgLoop
     global chatIdServer,checkWater
@@ -45,6 +46,13 @@ def action(msg): #done at msgLoop
         print(waterLevel) # test output
 
 
+def broadCastTele():
+    global chatIdServer,checkWater
+    for i in chatIdServer:
+        telegram_bot.sendMessage(chatIdServer[i], str(now.hour) + str(":") + str(now.minute) +"Water level is low")
+        broadCastCount = sys.maxint
+
+
 
 MessageLoop(telegram_bot, action).run_as_thread() #run on other thread
 print('SERVER STARTED : Telegram')
@@ -58,8 +66,10 @@ def handle_connection(conn):
             # print(sys.stderr, 'received "%s"' % data) #TODO what is this uh?
             print(f"Received test: {data}")
             waterLevel=data # keep overwrite till sender stop sending
-            print("test")
+            if data<=0.6 and broadCastCount<0:
+                broadCastTele()
             conn.send(data.encode())
+            broadCastCount-=1
 
         except:
             conn.close()
