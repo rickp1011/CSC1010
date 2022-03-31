@@ -4,7 +4,7 @@ from tokenize import String
 # Project: Smart Water Tank
 # Created by: Jitesh Saini
 
-# you can use the setup_cron.sh bash script to install a cron job to automatically execute this file every minute.
+# you can use the setup_cron.sh bash script to install a cron job to automatically execute t$
 
 import RPi.GPIO as GPIO
 import time, os
@@ -64,7 +64,6 @@ def get_distance():
 
     print("x: ", x + 1)
     print("k: ", k)
-
     avg_dist = dist_add / (x + 1 - k)
     dist = round(avg_dist, 3)
     # print ("dist: ", dist)
@@ -85,41 +84,44 @@ def low_level_warning(dist):
         print("red light ,level low : ", level)
         GPIO.output(ALARM, True)
         GPIO.output(NOALARM, False)
+        return str(level)+" Water level low"
     else:
         GPIO.output(ALARM, False)
         GPIO.output(NOALARM, True)
         print(" green light level ok")
+        return str(level)
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect the socket to the port on the server given by the caller
-server_address = (sys.argv[1], 10000)
+server_address = (sys.argv[1], int(sys.argv[2]))
 print (sys.stderr, 'connecting to %s port %s' % server_address)
 sock.connect(server_address)
-
 try:
     while True:
        # print('ur message')
         # message = input().encode()
-        distance = 23 - get_distance() #23 is height of bottle, getdistance() r$
+        distance = get_distance() #23 is height of bottle, getdistance() r$
         #output="Water Level in cm: "
-        message=str(distance)
-        message=message.encode()
+        level=low_level_warning(distance)
+        level =level.encode()
         #output=output.encode()
-        print(distance)
+        print(level)
         #sendData_to_remoteServer(distansce)
-        low_level_warning(distance)
+
         print("---------------------")
-        print (sys.stderr, 'sending "%s"' % message)
+        print (sys.stderr, 'sending "%s"' % level)
         #sock.send(output)
-        sock.sendall(message) #nt sure if string need to encode, to test
+        sock.sendall(level) #nt sure if string need to encode, to test
+
 
         amount_received = 0
-        amount_expected = len(message)
+        amount_expected = len(level)
         while amount_received < amount_expected:
             data = sock.recv(128)
             amount_received += len(data)
             print (sys.stderr, 'received "%s"' % data)
 
 finally:
-    sock.close() 
+    sock.close()
+
