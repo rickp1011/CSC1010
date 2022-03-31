@@ -1,9 +1,11 @@
+from queue import Empty
 import socket
 import sys
 import threading
 from threading import Thread
 from datetime import datetime
 import time, datetime
+from tokenize import Double
 import telepot
 from telepot.loop import MessageLoop
 
@@ -25,8 +27,7 @@ telegram_bot = telepot.Bot('5116787822:AAGMxhOJb6esbb2rcAmAk-QgNm15ukXtDss')
 checkWater=False
 now = datetime.datetime.now()
 chatIdServer=[]
-waterLevel=""
-broadCastCount=0 #broadcast flag
+waterLevel= None
 
 def action(msg): #done at msgLoop
     global chatIdServer,checkWater
@@ -45,43 +46,38 @@ def action(msg): #done at msgLoop
         telegram_bot.sendMessage(chat_id, str(now.hour)+str(":")+str(now.minute)+waterLevel)
         print(waterLevel) # test output
 
-
-def broadCastTele():
-    global chatIdServer,checkWater
-    for i in chatIdServer:
-        telegram_bot.sendMessage(chatIdServer[i], str(now.hour) + str(":") + str(now.minute) +"Water level is low")
-        broadCastCount = sys.maxint
-
-
-
 MessageLoop(telegram_bot, action).run_as_thread() #run on other thread
 print('SERVER STARTED : Telegram')
 # telegram region (end)
 
 def handle_connection(conn):
     global waterLevel
+    WATER_LEVEL_LOW = "water level low"
     while True:
-        try:
-            data = conn.recv(128).decode()
-            # print(sys.stderr, 'received "%s"' % data) #TODO what is this uh?
-            print(f"Received test: {data}")
-            waterLevel=data # keep overwrite till sender stop sending
-            if data<=0.6 and broadCastCount<0:
-                broadCastTele()
-            conn.send(data.encode())
-            broadCastCount-=1
+        data = conn.recv(128).decode()
+        # print(sys.stderr, 'received "%s"' % data) #TODO what is this uh?
+        print(f"Received test: {data}")
+        waterLevel=data # keep overwrite till sender stop sending
+        conn.send(data.encode())
+        if(WATER_LEVEL_LOW in waterLevel):
+            broadCastTele()
+        else:
+            pass
+        
 
-        except:
-            conn.close()
-            print(f"{conn} Disconnected")
-            break
+def broadCastTele():
+    global chatIdServer
+    for i in chatIdServer:
+        telegram_bot.sendMessage(i, str(now.hour) + str(":") + str(now.minute) +"Water level is low")
 
 def receiveServer():
+    global waterLevel
     while True:
         conn, addr = sock.accept()
         print(f"Connect with {str(addr)}")
         thread = threading.Thread(target=handle_connection,args=(conn,))
         thread.start()
+
 receiveServer()
 
 
