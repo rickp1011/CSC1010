@@ -22,7 +22,7 @@ def receiveClient():
     global filename
     condition = True
     while condition:  # infinite loop
-        try:
+        # try:
             msg1 = client.recv(4096)  # receive the message
             if msg1.decode(FORMAT) == "getNickname":
                 client.send(nickname.encode(FORMAT))  # if new connection, server will ask user to send nickname
@@ -30,18 +30,23 @@ def receiveClient():
             elif '!image' in msg1.decode(FORMAT):
                 image_chunk = client.recv(2048)
                 file1 = open(filename, "wb")
+                # fileSize = 0
                 while image_chunk:
                     file1.write(image_chunk)  #
-                    image_chunk = client.recv(2048)
+                    if 'Finish' in image_chunk.decode('ISO-8859-1'):
+                        print("Download Successful")
+                        break
+                    else:
+                        image_chunk = client.recv(2048)
                 file1.close()
 
             else:
                 print(msg1.decode(FORMAT))  # connection already establish. just print msg
 
-        except:  # any exception = disconnect
-            print("Disconnected")
-            client.close()
-            break
+        # except:  # any exception = disconnect
+        #     print("Disconnected")
+        #     client.close()
+        #     break
     # f.close()
 
 
@@ -53,16 +58,18 @@ def write():
     while condition:
         userInput = input("")  # get any msg wants to send across chat
         msg = f'{nickname}:{userInput}'
-
-        userInput = userInput.lower()  # format string to lower case
+        client.send(msg.encode(FORMAT))  # send msg to server
+        #userInput = userInput.lower()  # format string to lower case
         if userInput == DISCONNECT_MESSAGE:  # if user want to disconnect
             client.close()
             break
+        elif "!list" in userInput:
+            client.send("LIST_images".encode(FORMAT))
         elif "!download" in userInput:
             filename = userInput.split(' ')[-1]  # set file name
-            print("IMAGE DOWNLOAD SUCCESSFULLY")
-        else:
-            client.send(msg.encode(FORMAT))  # send msg to server
+
+
+
 
 
 # run both receive and write threads.

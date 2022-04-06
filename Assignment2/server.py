@@ -7,11 +7,13 @@ FORMAT = "utf-8"
 DISCONNECT_MESSAGE = "!disconnect"
 # AF_INET ipv4 addressing, SOCK_STREAM tcp socket
 
-x, y = input("CSC1010 Chat server, please enter the listening IP address and port.").split() #take users input of ip address and port
-SERVER = x #set server to users choice of ip address
-PORT = int(y) #set port to users choice of port
-ADDR = (SERVER, PORT) #set address to server and port
-# nickname = input("Choose a nickname: ")
+x, y = input(
+    "CSC1010 Chat server, please enter the listening IP address and port.").split()  # take users input of ip address and port
+SERVER = x  # set server to users choice of ip address
+PORT = int(y)  # set port to users choice of port
+ADDR = (SERVER, PORT)  # set address to server and port
+
+serverName = input("Please enter your name: ")
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
@@ -25,10 +27,14 @@ clientsConnected = []
 nicknames = []
 
 # images
-image_path = os.getcwd() #return string of current work directory
-image_list = [] #declare image list as an array
-for filename in glob.glob(image_path+'/*.jpg'): #assuming gif
-    image_list.append(filename.replace(image_path+"/","")) #append every image file
+image_path = os.getcwd()  # return string of current work directory
+image_list = []  # declare image list as an array
+file_sizes = []
+for filename in glob.glob(image_path + '/*.jpg'):  # assuming gif
+    image_list.append(filename.replace(image_path + "\\", ""))  # append every image file
+    file_size = os.path.getsize(filename)
+    file_sizes.append(file_size)
+
 
 # send message to all client connected to server
 def broadcast(message):
@@ -38,7 +44,7 @@ def broadcast(message):
 
 def write():
     userInput = input("")  # get any msg wants to send across chat
-    msg = f'{"Server"}:{userInput}'
+    msg = f'{serverName}:{userInput}'
     broadcast(msg.encode(FORMAT))  # send msg to server
     print(msg)
 
@@ -48,7 +54,7 @@ def handle_connection(conn, addr):
     while True:
         try:
             msg = conn.recv(1024)
-            if "!list" in msg.decode(FORMAT) :  # if userInput is "list images", send connection image list
+            if "LIST_images" in msg.decode(FORMAT):  # if userInput is "list images", send connection image list
                 for i in image_list:
                     broadcast(i.encode(FORMAT))
                     print(i)
@@ -61,7 +67,9 @@ def handle_connection(conn, addr):
                 while image_data:
                     conn.send(image_data)
                     image_data = fileimage.read(2048)
+                conn.send('Finish'.encode(FORMAT))
                 fileimage.close()
+
 
             else:  # if able to receive msg and is not one of the listed conditions, broadcast msg to all connected # client in clientsConnected[]
                 broadcast(msg)
@@ -69,7 +77,7 @@ def handle_connection(conn, addr):
                 print(printmsg)
 
         except:
-            #if exception occurs, remove connected client from both nicknames[] and clientsConnected[]
+            # if exception occurs, remove connected client from both nicknames[] and clientsConnected[]
             index = clientsConnected.index(conn)
             clientsConnected.remove(conn)
             conn.close()  # close connection
@@ -99,9 +107,9 @@ def receiveServer():
 
         thread = threading.Thread(target=handle_connection, args=(conn, addr))
         thread.start()
+
         write_thread = threading.Thread(target=write)
         write_thread.start()
-
 
 
 receiveServer()
