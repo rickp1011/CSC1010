@@ -17,12 +17,13 @@ client.connect(ADDR)  # connect client and address
 
 filename = ""
 
-
 def receiveClient():
+    '''Handles all of the reading of data being sent from the server
+    Nickname getter and image handling and writer.'''
     global filename
     condition = True
     while condition:  # infinite loop
-        # try:
+        try:
             msg1 = client.recv(4096)  # receive the message
             if msg1.decode(FORMAT) == "getNickname":
                 client.send(nickname.encode(FORMAT))  # if new connection, server will ask user to send nickname
@@ -32,25 +33,27 @@ def receiveClient():
                 file1 = open(filename, "wb")
                 # fileSize = 0
                 while image_chunk:
-                    file1.write(image_chunk)  #
+                    file1.write(image_chunk)
                     if 'Finish' in image_chunk.decode('ISO-8859-1'):
                         print("Download Successful")
                         break
                     else:
                         image_chunk = client.recv(2048)
+                    #print doenload sucessful if finish else continue downlaod
                 file1.close()
 
             else:
                 print(msg1.decode(FORMAT))  # connection already establish. just print msg
 
-        # except:  # any exception = disconnect
-        #     print("Disconnected")
-        #     client.close()
-        #     break
-    # f.close()
+        except:  # any exception = disconnect
+            print("Disconnected")
+            client.close()
+            break
+
 
 
 def write():
+    '''Handles all of the user input,messages & commands, and sends the input over to the server side'''
     global filename
     print('Running client program...')
     print(f'Trying to connect to the server: {ADDR}')
@@ -63,13 +66,10 @@ def write():
         if userInput == DISCONNECT_MESSAGE:  # if user want to disconnect
             client.close()
             break
-        elif "!list" in userInput:
+        elif "!list" in userInput: # if userInput contain !list ask server to send image list
             client.send("LIST_images".encode(FORMAT))
         elif "!download" in userInput:
             filename = userInput.split(' ')[-1]  # set file name
-
-
-
 
 
 # run both receive and write threads.
